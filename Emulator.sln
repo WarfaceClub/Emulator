@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emulator", "Emulator\Emulator.csproj", "{CC68C334-3B0E-462C-B410-C18F7E25E226}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emulator.Model", "Emulator.Model\Emulator.Model.csproj", "{815937F0-0021-48CC-B7BD-DE9DCA2EC15E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC68C334-3B0E-462C-B410-C18F7E25E226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC68C334-3B0E-462C-B410-C18F7E25E226}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC68C334-3B0E-462C-B410-C18F7E25E226}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC68C334-3B0E-462C-B410-C18F7E25E226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{815937F0-0021-48CC-B7BD-DE9DCA2EC15E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{815937F0-0021-48CC-B7BD-DE9DCA2EC15E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{815937F0-0021-48CC-B7BD-DE9DCA2EC15E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{815937F0-0021-48CC-B7BD-DE9DCA2EC15E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
