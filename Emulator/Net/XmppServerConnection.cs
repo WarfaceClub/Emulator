@@ -16,13 +16,6 @@ using XmppSharp.Protocol.Core.Tls;
 
 namespace Emulator.Net;
 
-public enum DisposedState
-{
-    None,
-    Partial = 1 << 0,
-    Full = 1 << 1
-}
-
 public enum XmppConnectionState
 {
     None,
@@ -65,15 +58,14 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
     public IPAddress RemoteAddress { get; }
 
     public XmppConnectionState State => _state;
-    public bool IsConnected => _state.HasFlag(XmppConnectionState.Connected)
-        && _disposed < DisposedState.Partial;
+    public bool IsConnected => _state.HasFlag(XmppConnectionState.Connected) && !_disposed.HasFlag(FileAccess.Read);
 
     internal XmppServer _server;
     internal Socket _socket;
     internal Stream _stream;
-    internal volatile FileAccess _ios;
+    internal volatile FileAccess _paused;
     internal volatile XmppConnectionState _state;
-    internal volatile DisposedState _disposed;
+    internal volatile FileAccess _disposed;
     internal XmppSession _session;
     internal X509Certificate2 _certificate;
 
@@ -169,7 +161,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
     internal async Task StartAsync()
     {
-        _ios = FileAccess.ReadWrite;
+        _paused = 0;
         _state = XmppConnectionState.Connected;
         await Task.WhenAll(BeginReceive(), BeginSend());
     }
@@ -181,21 +173,24 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
         try
         {
-            while (_disposed < DisposedState.Partial)
+            while (!_disposed.HasFlag(FileAccess.Read))
             {
-                await Task.Delay(16);
+                await Task.Delay(1);
 
-                if (!_ios.HasFlag(FileAccess.Read))
+                if (_paused.HasFlag(FileAccess.Read))
                     continue;
 
                 length = await _stream.ReadAsync(buffer);
 
                 if (length <= 0)
                     break;
+
+                _parser.Write(buffer, length);
             }
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex);
             Disconnect(x => x.StreamError = StreamErrorCondition.InternalServerError);
         }
         finally
@@ -210,11 +205,11 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
     {
         try
         {
-            while (_disposed < DisposedState.Full)
+            while (!_disposed.HasFlag(FileAccess.Write))
             {
                 await Task.Delay(1);
 
-                if (!_ios.HasFlag(FileAccess.Write))
+                if (_paused.HasFlag(FileAccess.Write))
                     continue;
 
                 while (_sendQueue.TryDequeue(out var packet))
@@ -223,7 +218,12 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
                     try
                     {
-                        await _stream.WriteAsync(packet.Bytes);
+                        if (packet.Bytes != null)
+                            await _stream.WriteAsync(packet.Bytes);
+
+#if DEBUG
+                        Log.Debug("<{Client}> send >>\n{Xml}\n", RemoteAddress, packet.Xml);
+#endif
                     }
                     catch (Exception ex)
                     {
@@ -237,12 +237,10 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
                 }
             }
         }
-#if DEBUG
         catch (Exception ex)
         {
-
+            Debug.WriteLine(ex);
         }
-#endif
         finally
         {
             Dispose();
@@ -251,7 +249,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
     internal void Send(string xml)
     {
-        if (_disposed == DisposedState.Full)
+        if (_disposed.HasFlag(FileAccess.Write))
             return;
 
         _sendQueue.Enqueue(new XmppPacket
@@ -265,7 +263,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
     public void Send(Element e)
     {
-        if (_disposed == DisposedState.Full)
+        if (_disposed.HasFlag(FileAccess.Write))
             return;
 
         _sendQueue.Enqueue(new XmppPacket
@@ -279,7 +277,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
     public async Task SendAsync(Element e)
     {
-        if (_disposed == DisposedState.Full)
+        if (_disposed.HasFlag(FileAccess.Write))
             return;
 
         var tcs = new TaskCompletionSource();
@@ -333,8 +331,8 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
         if (_disposed > 0)
             return;
 
-        _disposed = DisposedState.Partial;
-        _ios &= ~FileAccess.Read;
+        _disposed |= FileAccess.Read;
+        _paused &= ~FileAccess.Read;
         _state &= ~XmppConnectionState.Connected;
         _socket.Shutdown(SocketShutdown.Receive);
 
@@ -366,7 +364,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
     void Cleanup()
     {
-        _disposed = DisposedState.Full;
+        _disposed |= FileAccess.Write;
 
         _sendQueue.Clear();
         _stream.Dispose();
