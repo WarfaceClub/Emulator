@@ -1,6 +1,6 @@
 ﻿namespace Emulator.Entities.Options;
 
-public class XmppServerOptions
+public class XmppOptions
 {
     public string Hostname { get; set; }
     public ushort Port { get; set; }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using Emulator.Abstractions;
+using Emulator.Attributes;
 using Emulator.Entities.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,22 +12,28 @@ namespace Emulator.Net;
 
 public interface IXmppServer
 {
+    event Action<IXmppServerConnection> NewConnection;
+
     IEnumerable<IXmppServerConnection> Connections();
 }
 
-public class XmppServer : BackgroundService, IXmppServer
+[Bootstrap]
+[Implementation<IXmppServer>]
+public class XmppServer : BackgroundService, IXmppServer, IBootstrap
 {
     private Socket _socket;
     private ConcurrentDictionary<string, XmppServerConnection> _connections = [];
     private readonly ILogger<XmppServer> _logger;
     internal readonly IServiceProvider _services;
-    internal readonly XmppServerOptions _options;
+    internal readonly XmppOptions _options;
+
+    public event Action<IXmppServerConnection> NewConnection;
 
     public XmppServer
     (
         ILogger<XmppServer> logger,
         IServiceProvider services,
-        IOptions<XmppServerOptions> options
+        IOptions<XmppOptions> options
     )
     {
         _logger = logger;
@@ -84,6 +92,8 @@ public class XmppServer : BackgroundService, IXmppServer
 
         try
         {
+            NewConnection?.Invoke(connection);
+
             await connection.StartAsync();
         }
         catch (Exception ex)
