@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jabber", "Jabber\Jabber.csproj", "{459C3C54-25D0-490F-9E2E-53554B74D79F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServer\MasterServer.csproj", "{A27E0EF4-93BF-406E-8D68-66E25F063D9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{459C3C54-25D0-490F-9E2E-53554B74D79F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{459C3C54-25D0-490F-9E2E-53554B74D79F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{459C3C54-25D0-490F-9E2E-53554B74D79F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{459C3C54-25D0-490F-9E2E-53554B74D79F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A27E0EF4-93BF-406E-8D68-66E25F063D9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A27E0EF4-93BF-406E-8D68-66E25F063D9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A27E0EF4-93BF-406E-8D68-66E25F063D9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A27E0EF4-93BF-406E-8D68-66E25F063D9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
