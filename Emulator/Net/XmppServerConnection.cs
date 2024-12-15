@@ -332,7 +332,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
             return;
 
         _disposed |= FileAccess.Read;
-        _paused &= ~FileAccess.Read;
+        _paused |= FileAccess.Read;
         _state &= ~XmppConnectionState.Connected;
         _socket.Shutdown(SocketShutdown.Receive);
 
@@ -364,6 +364,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
 
     void Cleanup()
     {
+        _paused |= FileAccess.Write;
         _disposed |= FileAccess.Write;
 
         _sendQueue.Clear();
@@ -372,10 +373,7 @@ public class XmppServerConnection : IXmppServerConnection, IDisposable
         _parser.Dispose();
         _socket.Shutdown(SocketShutdown.Send);
         _socket.Dispose();
-    }
 
-    ~XmppServerConnection()
-    {
         _socket = null;
         _sendQueue = null;
         _certificate = null;
